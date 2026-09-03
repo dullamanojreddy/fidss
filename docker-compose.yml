@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: fidss-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword2026}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-fidss}
+      MYSQL_USER: ${MYSQL_USER:-fidss_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-fidss_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fidss-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-fidss_user}:${MYSQL_PASSWORD:-fidss_password}@db:3306/${MYSQL_DATABASE:-fidss}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-fidss-production-secret-key-2026}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 720
+      UPLOAD_DIR: ./storage/uploads
+      MAX_UPLOAD_MB: 10
+      SEED_ADMIN_USERNAME: admin
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-AdminSecure2026!}
+      SEED_OFFICER_USERNAME: arjun
+      SEED_OFFICER_PASSWORD: ${SEED_OFFICER_PASSWORD:-OfficerArjun2026!}
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads_data:/app/storage/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fidss-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  db_data:
+  uploads_data:

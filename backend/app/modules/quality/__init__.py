@@ -1,0 +1,3 @@
+"""
+FIDSS image quality module.
+"""

@@ -1,0 +1,87 @@
+{
+  "document_type": "passport",
+  "coordinate_system": "normalized",
+  "fields": {
+    "document_number": {
+      "labels": [
+        "PASSPORT NO",
+        "PASSPORT NUMBER",
+        "DOCUMENT NO",
+        "DOCUMENT NUMBER"
+      ],
+      "zone": {
+        "x": 0.50,
+        "y": 0.00,
+        "width": 0.50,
+        "height": 0.35
+      }
+    },
+    "surname": {
+      "labels": [
+        "SURNAME",
+        "FAMILY NAME",
+        "LAST NAME"
+      ],
+      "zone": {
+        "x": 0.35,
+        "y": 0.25,
+        "width": 0.65,
+        "height": 0.20
+      }
+    },
+    "given_names": {
+      "labels": [
+        "GIVEN NAMES",
+        "GIVEN NAME",
+        "FIRST NAME",
+        "FORENAME"
+      ],
+      "zone": {
+        "x": 0.35,
+        "y": 0.35,
+        "width": 0.65,
+        "height": 0.20
+      }
+    },
+    "date_of_birth": {
+      "labels": [
+        "DATE OF BIRTH",
+        "DOB",
+        "BIRTH DATE"
+      ],
+      "zone": {
+        "x": 0.00,
+        "y": 0.50,
+        "width": 0.50,
+        "height": 0.20
+      }
+    },
+    "date_of_expiry": {
+      "labels": [
+        "DATE OF EXPIRY",
+        "DATE OF EXPIRATION",
+        "EXPIRY DATE",
+        "EXPIRATION DATE",
+        "DOE"
+      ],
+      "zone": {
+        "x": 0.50,
+        "y": 0.50,
+        "width": 0.50,
+        "height": 0.20
+      }
+    },
+    "nationality": {
+      "labels": [
+        "NATIONALITY",
+        "NATIONALITY CODE"
+      ],
+      "zone": {
+        "x": 0.00,
+        "y": 0.35,
+        "width": 0.35,
+        "height": 0.20
+      }
+    }
+  }
+}

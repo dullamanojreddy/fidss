@@ -1,0 +1,20 @@
+{
+  "document_type": "permit",
+  "country": "IND",
+  "_comment": "# APPROXIMATE \u2014 verify against real sample documents. Permits use similar logic to visas.",
+  "required_fields": [
+    "document_number",
+    "date_of_expiry"
+  ],
+  "date_order_rules": [
+    {
+      "before_field": "date_of_issue",
+      "after_field": "date_of_expiry",
+      "rule": "date_of_issue must precede date_of_expiry"
+    }
+  ],
+  "expiry_thresholds_days": {
+    "expiring_soon": 30
+  },
+  "document_number_pattern": "^[A-Z0-9]{8,15}$"
+}

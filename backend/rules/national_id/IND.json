@@ -1,0 +1,12 @@
+{
+  "document_type": "national_id",
+  "country": "IND",
+  "_comment": "Aadhaar has no expiry. Formatting may include spaces.",
+  "required_fields": [
+    "document_number",
+    "date_of_birth"
+  ],
+  "date_order_rules": [],
+  "expiry_thresholds_days": {},
+  "document_number_pattern": "^[2-9][0-9]{3}\\s?[0-9]{4}\\s?[0-9]{4}$"
+}

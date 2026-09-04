@@ -1,15 +1,5 @@
-from typing import Protocol, runtime_checkable
-from datetime import date
-from app.schemas.watchlist import WatchlistSearchResult
+from typing import Protocol, List, Dict, Optional
 
-
-@runtime_checkable
 class WatchlistProvider(Protocol):
-    def search(
-        self,
-        document_number: str | None = None,
-        name: str | None = None,
-        dob: date | None = None,
-    ) -> WatchlistSearchResult:
-        """Search watchlist provider for matching entries."""
+    def search(self, document_number: Optional[str], name: Optional[str], dob: Optional[str]) -> List[Dict[str, str]]:
         ...

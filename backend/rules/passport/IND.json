@@ -1,0 +1,29 @@
+{
+  "document_type": "passport",
+  "country": "IND",
+  "required_fields": [
+    "date_of_birth",
+    "date_of_issue",
+    "date_of_expiry",
+    "nationality",
+    "document_number",
+    "surname",
+    "given_names"
+  ],
+  "date_order_rules": [
+    {
+      "before_field": "date_of_birth",
+      "after_field": "date_of_issue",
+      "rule": "date_of_birth must precede date_of_issue"
+    },
+    {
+      "before_field": "date_of_issue",
+      "after_field": "date_of_expiry",
+      "rule": "date_of_issue must precede date_of_expiry"
+    }
+  ],
+  "expiry_thresholds_days": {
+    "expiring_soon": 180
+  },
+  "document_number_pattern": "^[A-PR-WY-Z][1-9][0-9]\\s?[0-9]{4}[1-9]$"
+}

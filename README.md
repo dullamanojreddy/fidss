@@ -42,7 +42,7 @@ Border control points handle thousands of travelers hourly under extreme time pr
 * **Photo Substitution**: High-quality physical or digital headshot replacement.
 * **Copy-Move & Digital Splices**: Cloned background patterns, stamps, or official seals.
 * **Compression Discrepancies**: Inconsistent Error Level Analysis (ELA) and JPEG quantization artifacts.
-* **Synthetic & Duplicate Identities**: Recycled passport numbers across distinct personas.
+* **Synthetic & Duplicate Identities**: Recycled passport numbers across distinct traveler profiles.
 * **Watchlist Impersonation**: High-risk individuals attempting entry under similar identity variants.
 
 ### 💡 The FIDSS Solution
@@ -94,7 +94,7 @@ FIDSS is engineered as a clean, modular monolith with explicit contract boundari
                       +-------------------------------+-------------------------------+
                       |                               |                               |
           +-----------v-----------+       +-----------v-----------+       +-----------v-----------+
-          | P1: OCR & Quality     |       | P2: MRZ & Validation  |       | P3: Forensics & CV    |
+          |  OCR & Quality Engine |       |  MRZ & Validation     |       |  Forensics & CV       |
           | - Usability Gate      |       | - ICAO 9303 Checksum  |       | - ELA Compression     |
           | - PaddleOCR PP-OCRv4  |       | - OCR Cross-Match     |       | - Copy-Move Detection |
           | - Text Bounding Boxes |       | - Watchlist Query     |       | - Noise Variance      |
@@ -103,7 +103,7 @@ FIDSS is engineered as a clean, modular monolith with explicit contract boundari
                       +-------------------------------+-------------------------------+
                                                       |
                                          +------------v------------+
-                                         | P4: Face & Risk Fusion  |
+                                         | Biometrics & Fusion     |
                                          | - SCRFD + ArcFace Match |
                                          | - Weighted Risk Engine  |
                                          +------------+------------+
@@ -145,7 +145,7 @@ flowchart TD
 3. **`03_COMPUTE_SHA256`**: Computes document SHA-256 hash for deduplication and cryptographic provenance.
 4. **`04_STORE_DOCUMENT`**: Writes to isolated storage using sanitized UUID filenames to neutralize path-traversal exploits.
 5. **`05_DETERMINE_DOC_TYPE`**: Identifies document type (`passport`, `visa`, `national_id`, `driving_license`).
-6. **`06_IMAGE_QUALITY_CHECK`**: Runs P1 Quality Gate (Laplacian blur variance, luminance, contrast, edge resolution). If unreadable, halts immediately to prevent false alarms.
+6. **`06_IMAGE_QUALITY_CHECK`**: Runs Automated Image Quality Gate (Laplacian blur variance, luminance, contrast, edge resolution). If unreadable, halts immediately to prevent false alarms.
 7. **`07_OCR_EXTRACTION`**: Runs OCR engine to extract textual tokens, normalize semantic fields (Name, Document #, DOB, Expiry), and extract bounding boxes.
 8. **`08_VALIDATION_MRZ`**: Validates ICAO 9303 compliance, calculates Modulo 10 (7-3-1) check digits, cross-verifies visual OCR against MRZ, and queries synthetic watchlists.
 9. **`09_TAMPERING_FORENSICS`**: Computes Error Level Analysis (ELA), performs copy-move feature matching, checks noise inconsistencies, and detects altered fonts.
@@ -159,31 +159,31 @@ flowchart TD
 
 ---
 
-## 👥 Module Ownership & Engineering Boundaries
+## 🧩 Modular Subsystem Architecture & Contract Boundaries
 
-To enable parallel hackathon development without merge conflicts, the codebase strictly enforces ownership boundaries via frozen Pydantic schemas in `backend/app/schemas/`:
+To ensure clean separation of concerns, high maintainability, and seamless extensibility, the system is decomposed into autonomous, loosely coupled subsystems communicating exclusively through frozen Pydantic contracts in `backend/app/schemas/`:
 
 ```
 backend/
 ├── app/
 │   ├── modules/
-│   │   ├── ocr/            --> [Person 1] OCR Extraction & Text Preprocessing
-│   │   ├── quality/        --> [Person 1] Image Quality Gate (Blur, Brightness, Glare)
-│   │   ├── validation/     --> [Person 2] ICAO 9303 MRZ Engine & Rules Validation
-│   │   ├── tampering/      --> [Person 3] Computer Vision Forensics (ELA, Copy-Move)
-│   │   ├── face/           --> [Person 4] SCRFD Face Detection & ArcFace Verification
-│   │   └── fusion/         --> [Person 4] Evidence Aggregation & Risk Scoring
-│   ├── core/               --> [Person 5] Config, Security, JWT, RBAC Dependencies
-│   ├── db/                 --> [Person 5] Database Session, Engine & Seeding
-│   ├── models/             --> [Person 5] SQLAlchemy Relational Models
-│   ├── schemas/            --> [Person 5] Shared Frozen Pydantic Data Contracts
-│   ├── services/           --> [Person 5] Orchestrator, Storage, & SHA-256 Audit Chain
-│   ├── providers/          --> [Person 5] Watchlist & Blockchain Anchor Abstractions
-│   └── api/                --> [Person 5] FastAPI REST Controllers
+│   │   ├── ocr/            --> OCR Extraction & Text Preprocessing Engine
+│   │   ├── quality/        --> Automated Image Quality Gate (Blur, Brightness, Glare)
+│   │   ├── validation/     --> ICAO 9303 MRZ Engine & Rules Validation
+│   │   ├── tampering/      --> Computer Vision Forensics (ELA, Copy-Move, Splicing)
+│   │   ├── face/           --> SCRFD Face Detection & ArcFace Biometrics
+│   │   └── fusion/         --> Multi-Factor Evidence Aggregation & Risk Scoring
+│   ├── core/               --> Configuration, Security, JWT, RBAC Dependencies
+│   ├── db/                 --> Relational Database Engine, Session, & Seeding
+│   ├── models/             --> SQLAlchemy ORM Relational Models
+│   ├── schemas/            --> Shared Immutable Pydantic Data Contracts
+│   ├── services/           --> Pipeline Orchestrator, File Storage, & SHA-256 Audit Chain
+│   ├── providers/          --> Pluggable Watchlist & Blockchain Anchor Providers
+│   └── api/                --> FastAPI REST Controllers & Dependency Injection
 ```
 
-* **Module Dispatcher Pattern (`services/orchestrator.py`)**: Person 5 communicates with analytical modules through `ModuleDispatcher`. If an ML model is undergoing training or missing libraries, the dispatcher falls back to a contract-conforming stub, ensuring uninterrupted platform stability.
-* **Failure Isolation Guarantee**: Module errors or crashes are captured as `ModuleResult.status = FAILED` and escalate screening severity—the system **never** silently defaults to `CLEAR`.
+* **Module Dispatcher Pattern (`services/orchestrator.py`)**: The orchestrator communicates with analytical engines via the `ModuleDispatcher` abstraction. If an ML dependency or weight file is unavailable, the dispatcher falls back gracefully to a contract-conforming stub, ensuring resilient platform execution.
+* **Failure Isolation Guarantee**: Analytical module errors or timeouts are recorded as `ModuleResult.status = FAILED` and escalate screening severity—the system **never** silently defaults to `CLEAR`.
 
 ---
 
@@ -394,7 +394,7 @@ fidss/
 │   ├── architecture.md          # Detailed architecture & pipeline breakdown
 │   ├── api-contracts.md         # Complete REST API specification
 │   ├── database.md              # Relational schema design & indexing strategy
-│   ├── module-contracts.md      # Pydantic schemas for Persons 1–4
+│   ├── module-contracts.md      # Pydantic schemas for analytical & forensic modules
 │   ├── security.md              # Security hardening, RBAC, and crypto specifications
 │   ├── sop.md                   # Standard Operating Procedure for demonstrations
 │   └── ui-reference/            # UI specifications and layout references

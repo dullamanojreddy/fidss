@@ -1,1 +1,7 @@
-# FIDSS fusion configuration
+{
+  "severity_points": {"LOW": 3.0, "MEDIUM": 12.0, "HIGH": 25.0, "CRITICAL": 40.0},
+  "module_weights": {"ocr": 0.7, "validation": 1.2, "tampering": 1.2, "face": 1.1},
+  "category_weights": {"FACE_MISMATCH": 1.25, "MRZ_CHECKSUM_FAILURE": 1.25, "WATCHLIST_MATCH": 1.5},
+  "thresholds": {"clear_max": 25.0, "review_max": 50.0, "enhanced_review_max": 75.0},
+  "inconclusive_score_floor": 50.0
+}

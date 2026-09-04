@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Header } from '../components/Header';
 import { screeningApi } from '../api/client';
+import OcrOverlay from "../components/OcrOverlay";
 
 export const ScreeningConsolePage = () => {
   const navigate = useNavigate();
@@ -266,11 +267,13 @@ export const ScreeningConsolePage = () => {
                 <h3 className="font-bold text-slate-800 text-sm mb-3">Document Preview</h3>
                 <div className="relative bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center min-h-[260px]">
                   {screening?.document_preview_url ? (
-                    <img
-                      src={screening.document_preview_url}
-                      alt="Uploaded Document"
-                      style={{ transform: `scale(${zoomLevel})` }}
-                      className="max-h-60 w-auto object-contain transition-transform duration-150"
+                    <OcrOverlay
+                      imageSrc={screening.document_preview_url}
+                      rawLines={screening.module_results
+                        ?.find((module) => module.module === "ocr")
+                        ?.metadata?.raw_lines || []}
+                      imageWidth={900}
+                      imageHeight={600}
                     />
                   ) : (
                     <div className="text-slate-400 text-xs flex flex-col items-center gap-2">

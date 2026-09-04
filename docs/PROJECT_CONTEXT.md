@@ -70,7 +70,7 @@ Defined in `backend/app/models/`:
 
 ## 9. Module Status
 - **P1 OCR & Quality**: Integration Ready (Stubs / Contract Conforming)
-- **P2 Validation & MRZ**: Integration Ready (Stubs / Contract Conforming)
+- **P2 Validation & MRZ**: Implemented & Tested (MRZ detection/parsing/checksum, India-specific rule engine, OCR↔MRZ cross-validation, synthetic watchlist + duplicate identity, all wired into `analyze()`. 59/59 relevant unit tests passing.)
 - **P3 Tampering & Forensics**: Integration Ready (Stubs / Contract Conforming)
 - **P4 Face & Fusion**: Integration Ready (Stubs / Contract Conforming)
 - **P5 Platform & Integration**: Implemented (Complete database-driven platform)
@@ -82,6 +82,12 @@ Defined in `backend/app/models/`:
 - Cryptographic SHA-256 audit hash-chain logger and verification engine.
 - Complete FastAPI application with JWT auth, RBAC, and REST endpoints.
 - Fully database-driven React 18 + TailwindCSS frontend reflecting the reference UI specification.
+- MRZ detection, TD1/TD2/TD3 parsing, and ICAO 9303 weighted 7-3-1 checksum algorithm (verified against published check-digit test vectors) — `backend/app/modules/validation/`.
+- India-specific document rule engine (passport, visa, national_id, driving_license, permit) — data-driven via `backend/rules/*/IND.json`, no hardcoded policy.
+- OCR↔MRZ cross-validation for document-number/date/name mismatch detection.
+- Synthetic watchlist matching (`LocalSyntheticWatchlistProvider`, clearly disclaimed prototype data) behind a swappable `WatchlistProvider` Protocol.
+- Duplicate identity detection via normalized fuzzy name/DOB/document-number matching.
+- `analyze()` entry point wiring all validation sub-checks together with per-step failure isolation — a single sub-check failing does not discard evidence already collected from other sub-checks, and never silently produces a false SUCCESS/CLEAR on missing input.
 
 ## 11. Current Work
 - Verification of database persistence, API endpoints, audit verification demo, and UI integration.
@@ -89,9 +95,12 @@ Defined in `backend/app/models/`:
 ## 12. Pending Tasks
 - Final E2E test runs with curated clean and tampered document images.
 - Integration tests when P1-P4 push algorithmic module implementations.
+- Reconcile `context.ocr_result` field/key naming (e.g. `raw_lines`, `document_number`, `surname`, `given_names`, `date_of_birth`, `date_of_expiry`, `nationality`) between P2's assumptions and P1's actual OCR output once implemented.
+- Wire `context.allowed_outputs["historical_records"]` with real historical screening data (DB query) before calling validation's `analyze()`, to activate duplicate identity detection (currently a safe no-op with empty default).
 
 ## 13. Known Bugs
-- None identified in core platform.
+- `test_audit_verification_and_tamper_detection` fails: `/api/audit/tamper-demo` does not appear to actually corrupt the hash chain — `verify` still returns `VERIFIED` after the tamper-demo call, expected `AUDIT_INTEGRITY_FAILURE`. (Found during P2 module testing; not caused by P2 changes.)
+- `test_get_canonical_screening` and `test_submit_officer_review` fail with 404 on a fresh clone — demo screening `SID-2026-05-21-00124` doesn't exist. Section 17 references `SEED_ADMIN_PASSWORD`/`SEED_OFFICER_PASSWORD` env vars for seeding; possibly just a missing local `.env` setup step rather than a real bug — needs confirming.
 
 ## 14. Architecture Decisions
 - **AD-001**: Decoupled orchestrator from ML libraries via `ModuleDispatcher` to allow seamless stubbing and independent team development.
@@ -112,11 +121,17 @@ Defined in `backend/app/models/`:
 - `backend/app/providers/*`
 - `backend/app/api/*`
 - `frontend/*`
+- `backend/app/modules/validation/*` (mrz_detector.py, mrz_parser.py, mrz_checksum.py, cross_validator.py, rule_engine.py, watchlist.py, duplicate_identity.py, config_loader.py, validation_config.json, analyze.py)
+- `backend/app/providers/watchlist/*` (base.py, local_provider.py, synthetic_watchlist.json)
+- `backend/rules/{passport,visa,national_id,driving_license,permit}/IND.json`
+- `backend/tests/unit/test_analyze.py`, `test_cross_validator.py`, `test_mrz_checksum.py`, `test_mrz_detector.py`, `test_mrz_parser.py`, `test_rule_engine.py`, `test_watchlist_duplicate.py`
+- `backend/requirements.txt` (added `rapidfuzz`)
 
 ## 16. Test Status
 - Shared contracts tested against invalid inputs.
 - Orchestrator tested against module crashes and partial execution.
 - Audit hash-chain tested for tampering detection.
+- Validation module: 59/59 tests passing across MRZ checksum/parser/detector, rule engine, cross-validator, watchlist/duplicate identity, and full `analyze()` integration. Includes failure-isolation tests (one sub-check failing doesn't discard other sub-checks' evidence) and a config-wiring test proving externalized thresholds actually affect behavior (not just present but unused).
 
 ## 17. Environment Status
 - Demo and production environments configurable via `.env`.

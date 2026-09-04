@@ -1,0 +1,53 @@
+{
+  "_disclaimer": "This is synthetic prototype data, not a real watchlist.",
+  "records": [
+    {
+      "id": "W-001",
+      "document_number": "FAKE12345",
+      "name": "TEST SUBJECT ALPHA",
+      "dob": "1980-01-01"
+    },
+    {
+      "id": "W-002",
+      "document_number": "BAD999999",
+      "name": "JOHN BADGUY",
+      "dob": "1990-05-15"
+    },
+    {
+      "id": "W-003",
+      "document_number": "VOID00000",
+      "name": "VOID PASSPORT HOLDER",
+      "dob": "1975-11-20"
+    },
+    {
+      "id": "W-004",
+      "document_number": "A1234567X",
+      "name": "ANOTHER FAKE",
+      "dob": "1985-12-31"
+    },
+    {
+      "id": "W-005",
+      "document_number": "TEST9876",
+      "name": "SYNTHETIC ENTRY",
+      "dob": "1999-09-09"
+    },
+    {
+      "id": "W-006",
+      "document_number": "XXX0000",
+      "name": "JANE NOBODY",
+      "dob": "2000-01-01"
+    },
+    {
+      "id": "W-007",
+      "document_number": "ZZZ9999",
+      "name": "TEST MATCH ME",
+      "dob": "1995-05-05"
+    },
+    {
+      "id": "W-008",
+      "document_number": "QQQ1111",
+      "name": "WATCHLIST NAME",
+      "dob": "1992-02-02"
+    }
+  ]
+}

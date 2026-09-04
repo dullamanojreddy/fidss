@@ -1,0 +1,6 @@
+{
+  "fuzzy_name_match_threshold": 85.0,
+  "duplicate_identity_name_threshold": 85.0,
+  "mrz_check_confidence": 0.95,
+  "cross_validator_exact_mismatch_confidence": 0.9
+}

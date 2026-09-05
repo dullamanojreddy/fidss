@@ -9,7 +9,9 @@ ENV/
 *.db
 *.sqlite3
 storage/uploads/*
+backend/storage/uploads/*
 !storage/uploads/.gitkeep
+!backend/storage/uploads/.gitkeep
 
 # Testing & Cache
 .pytest_cache/

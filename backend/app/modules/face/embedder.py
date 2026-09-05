@@ -10,7 +10,7 @@ class EmbeddingUnavailable(RuntimeError):
 def create_embedding(face: np.ndarray) -> np.ndarray:
     model_path = os.getenv("FIDSS_ARCFACE_MODEL_PATH")
     if not model_path or not Path(model_path).is_file():
-        raise EmbeddingUnavailable("ArcFace model is not configured")
+        raise EmbeddingUnavailable("ArcFace model is not configured (set FIDSS_ARCFACE_MODEL_PATH to a valid .onnx file)")
     try:
         from insightface.model_zoo import get_model
         model = get_model(model_path, providers=["CPUExecutionProvider"])

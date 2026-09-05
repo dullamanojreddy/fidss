@@ -33,19 +33,38 @@ def check_duplicate_identity(current: Dict[str, Any], historical_records: List[D
         
         # document_number exact match
         if curr_doc and hist_doc and curr_doc == hist_doc:
-            findings.append({
-                "category": "DUPLICATE_IDENTITY",
-                "severity": "CRITICAL",
-                "source": "duplicate_identity",
-                "confidence": 1.0,
-                "description": f"Document number exactly matches historical screening {hist_id}",
-                "metrics": {
-                    "current_document_number": curr_doc,
-                    "historical_document_number": hist_doc,
-                    "historical_screening_id": hist_id
-                }
-            })
-            continue # Already flagged this record as critical
+            name_similarity = fuzz.token_sort_ratio(curr_name, hist_name) if (curr_name and hist_name) else 100
+            dob_mismatch = bool(curr_dob and hist_dob and curr_dob != hist_dob)
+
+            if name_similarity < 70 or dob_mismatch:
+                findings.append({
+                    "category": "DUPLICATE_IDENTITY",
+                    "severity": "CRITICAL",
+                    "source": "duplicate_identity",
+                    "confidence": 1.0,
+                    "description": f"Document number {curr_doc} was previously associated with a different person ({hist_name or 'Unknown'}) in screening {hist_id}",
+                    "metrics": {
+                        "current_document_number": curr_doc,
+                        "historical_document_number": hist_doc,
+                        "historical_screening_id": hist_id,
+                        "conflict": "identity_mismatch"
+                    }
+                })
+            else:
+                findings.append({
+                    "category": "RECORD_FOUND",
+                    "severity": "LOW",
+                    "source": "duplicate_identity",
+                    "confidence": 1.0,
+                    "description": f"Document number matches previous screening {hist_id} for the same traveler.",
+                    "metrics": {
+                        "current_document_number": curr_doc,
+                        "historical_document_number": hist_doc,
+                        "historical_screening_id": hist_id,
+                        "repeat_traveler": True
+                    }
+                })
+            continue # Already handled this record
             
         # name similarity >= 85 AND DOB matches exactly
         if curr_name and hist_name and curr_dob and hist_dob:

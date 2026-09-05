@@ -224,6 +224,33 @@ def map_fields(
             fields["DOB"] = dob
 
     # ---------------------------------------------------------
+    # Date of issue
+    # ---------------------------------------------------------
+    config = configured_fields.get("date_of_issue", {})
+
+    value = _find_labeled_value(
+        ocr_lines,
+        config.get("labels", []),
+    )
+
+    if not value and use_spatial_mapping:
+        value = _find_value_in_zone(
+            ocr_lines,
+            config.get("zone", {}),
+            image_width,
+            image_height,
+        )
+
+    if value:
+        match = DATE_PATTERN.search(value)
+
+        if match:
+            doi = normalize_date(match.group(0))
+            fields["date_of_issue"] = doi
+            fields["Date of Issue"] = doi
+            fields["Issue Date"] = doi
+
+    # ---------------------------------------------------------
     # Date of expiry
     # ---------------------------------------------------------
     config = configured_fields.get("date_of_expiry", {})

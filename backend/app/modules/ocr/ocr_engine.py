@@ -25,12 +25,18 @@ class OCREngine:
     """
 
     def __init__(self) -> None:
-        self._ocr = PaddleOCR(
-            lang="en",
-            use_gpu=False,
-            show_log=False,
-            use_angle_cls=False,
-        )
+        try:
+            self._ocr = PaddleOCR(
+                lang="en",
+                use_gpu=False,
+                show_log=False,
+                use_angle_cls=False,
+            )
+        except Exception:
+            try:
+                self._ocr = PaddleOCR(lang="en", use_gpu=False)
+            except Exception:
+                self._ocr = PaddleOCR(lang="en")
 
     def recognize(self, image: np.ndarray) -> list[OCRLine]:
         """
@@ -43,7 +49,10 @@ class OCREngine:
         if image is None or image.size == 0:
             return []
 
-        result = self._ocr.ocr(image, cls=False)
+        try:
+            result = self._ocr.ocr(image, cls=False)
+        except TypeError:
+            result = self._ocr.ocr(image)
         if not result or not result[0]:
             return []
 

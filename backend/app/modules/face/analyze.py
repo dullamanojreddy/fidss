@@ -15,7 +15,7 @@ def _result(started, status, outcome, *, errors=None, evidence=None, metadata=No
 def analyze(context: DocumentContext) -> ModuleResult:
     started = time.perf_counter()
     if not context.selfie_path:
-        return _result(started,"INCONCLUSIVE","INCONCLUSIVE",errors=["Traveler selfie was not provided"],metadata={"reason":"SELFIE_MISSING"})
+        return _result(started,"SUCCESS","SKIPPED",metadata={"reason":"SELFIE_NOT_PROVIDED","note":"Face verification skipped — no traveler selfie uploaded."})
     try:
         document, selfie = load_image(context.image_path), load_image(context.selfie_path)
         document_faces, selfie_faces = detect_faces(document), detect_faces(selfie)

@@ -56,6 +56,21 @@
         "height": 0.20
       }
     },
+    "date_of_issue": {
+      "labels": [
+        "DATE OF ISSUE",
+        "ISSUE DATE",
+        "DATE D'EMISSION",
+        "ISSUED ON",
+        "DOI"
+      ],
+      "zone": {
+        "x": 0.00,
+        "y": 0.50,
+        "width": 0.50,
+        "height": 0.25
+      }
+    },
     "date_of_expiry": {
       "labels": [
         "DATE OF EXPIRY",

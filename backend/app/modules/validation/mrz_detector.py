@@ -17,8 +17,13 @@ def detect_mrz(lines: List[str]) -> Optional[List[str]]:
     valid_lengths = {30, 36, 44}
     mrz_pattern = re.compile(r'^[A-Z0-9<]+$')
     
-    # Let's clean lines (strip whitespace)
-    cleaned_lines = [line.strip().replace(' ', '') for line in lines]
+    # Let's clean lines (strip whitespace), handling both strings and OCR line dicts
+    cleaned_lines = []
+    for line in lines:
+        text = line.get("text", "") if isinstance(line, dict) else str(line)
+        cleaned = text.strip().replace(" ", "").upper()
+        if cleaned:
+            cleaned_lines.append(cleaned)
     
     # Find longest block of valid MRZ lines
     for expected_count, expected_length in [(2, 44), (2, 36), (3, 30)]:

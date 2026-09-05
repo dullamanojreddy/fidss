@@ -26,12 +26,11 @@ class OCREngine:
 
     def __init__(self) -> None:
         self._ocr = PaddleOCR(
-        lang="en",
-        device="cpu",
-        use_doc_orientation_classify=False,
-        use_doc_unwarping=False,
-        use_textline_orientation=False,
-    )
+            lang="en",
+            use_gpu=False,
+            show_log=False,
+            use_angle_cls=False,
+        )
 
     def recognize(self, image: np.ndarray) -> list[OCRLine]:
         """
@@ -44,34 +43,35 @@ class OCREngine:
         if image is None or image.size == 0:
             return []
 
-        result = self._ocr.predict(image)
+        result = self._ocr.ocr(image, cls=False)
+        if not result or not result[0]:
+            return []
 
         lines: list[OCRLine] = []
 
-        for page in result:
-            data: dict[str, Any] = page.json
+        for item in result[0]:
+            if not item or len(item) < 2:
+                continue
 
-            # PaddleOCR 3.x stores the useful OCR information
-            # inside the `res` object.
-            res = data.get("res", {})
+            box = item[0]
+            text_score = item[1]
+            if isinstance(text_score, (tuple, list)) and len(text_score) >= 2:
+                text = str(text_score[0]).strip()
+                score = float(text_score[1])
+            else:
+                text = str(text_score).strip()
+                score = 0.90
 
-            texts = res.get("rec_texts", [])
-            scores = res.get("rec_scores", [])
-            boxes = res.get("rec_polys", [])
+            if not text:
+                continue
 
-            for text, score, box in zip(texts, scores, boxes):
-                text = str(text).strip()
-
-                if not text:
-                    continue
-
-                lines.append(
-                    OCRLine(
-                        text=text,
-                        confidence=float(score),
-                        bbox=np.asarray(box).tolist(),
-                    )
+            lines.append(
+                OCRLine(
+                    text=text,
+                    confidence=score,
+                    bbox=np.asarray(box).tolist(),
                 )
+            )
 
         return lines
 

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Header } from '../components/Header';
 import { screeningApi } from '../api/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const DECISIONS = [
   { id: 'ACCEPT', label: 'Accept & Clear', icon: CheckCircle2, color: 'bg-emerald-600 hover:bg-emerald-700 text-white', border: 'border-emerald-600' },
@@ -26,6 +26,7 @@ const DECISIONS = [
 
 export const OfficerReviewPage = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [screening, setScreening] = useState(null);
   const [evidenceList, setEvidenceList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,11 +38,23 @@ export const OfficerReviewPage = () => {
 
   useEffect(() => {
     loadReviewData();
-  }, []);
+  }, [id]);
 
   const loadReviewData = async () => {
+    setLoading(true);
     try {
-      const data = await screeningApi.getById('SID-2026-05-21-00124');
+      let targetId = id;
+      if (!targetId) {
+        const recent = await screeningApi.list(1, 0);
+        if (recent && recent.length > 0) {
+          targetId = recent[0].id;
+        }
+      }
+      if (!targetId) {
+        setScreening(null);
+        return;
+      }
+      const data = await screeningApi.getById(targetId);
       setScreening(data);
       const ev = await screeningApi.getEvidence(data.id);
       setEvidenceList(ev);

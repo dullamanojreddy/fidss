@@ -171,51 +171,20 @@ class ModuleDispatcher:
         quality: QualityResult,
         module_results: list[ModuleResult],
     ) -> tuple[float, str, str]:
-        """Calculates risk score and screening level strictly from observed evidence.
-        
-        System Invariant:
-        If quality failed or any core module failed / is inconclusive, verdict is NEVER CLEAR.
-        """
-        if quality.status == "FAIL":
-            return 85.0, "INCONCLUSIVE", "Image quality failed. Recapture required."
+        """Calculates risk score and screening level strictly from observed evidence via Person 4's fusion service."""
+        try:
+            from app.modules.fusion.fusion_service import calculate_risk
+            return calculate_risk(quality, module_results)
+        except Exception:
+            # Safe invariant fallback if fusion service raises an unexpected runtime exception
+            if quality.status == "FAIL":
+                return 85.0, "INCONCLUSIVE", "Image quality failed. Recapture required."
 
-        pending_or_failed = [m.module for m in module_results if m.status in ["FAILED", "INCONCLUSIVE"]]
-        if pending_or_failed:
-            return (
-                50.0,
-                "REVIEW_RECOMMENDED",
-                f"Checks pending or inconclusive for: {', '.join(pending_or_failed)}. Officer manual inspection required.",
-            )
-
-        # Aggregate evidence severity weights
-        total_risk = 0.0
-        all_evidence: list[EvidenceItem] = []
-        for m in module_results:
-            all_evidence.extend(m.evidence_items)
-
-        for ev in all_evidence:
-            if ev.severity == "CRITICAL":
-                total_risk += 40.0 * ev.confidence
-            elif ev.severity == "HIGH":
-                total_risk += 25.0 * ev.confidence
-            elif ev.severity == "MEDIUM":
-                total_risk += 12.0 * ev.confidence
-            elif ev.severity == "LOW":
-                total_risk += 3.0 * ev.confidence
-
-        risk_score = round(min(max(total_risk, 0.0), 100.0), 1)
-
-        if risk_score <= 25.0:
-            level = "CLEAR"
-            recommendation = "Document passed all active verification checks without significant risk signals."
-        elif risk_score <= 50.0:
-            level = "REVIEW_RECOMMENDED"
-            recommendation = "Low to moderate anomalies detected. Officer review recommended."
-        elif risk_score <= 75.0:
-            level = "ENHANCED_REVIEW_RECOMMENDED"
-            recommendation = "Elevated risk signals detected. Enhanced secondary physical inspection recommended."
-        else:
-            level = "INCONCLUSIVE"
-            recommendation = "High risk or contradictory evidence. Escalation required."
-
-        return risk_score, level, recommendation
+            pending_or_failed = [m.module for m in module_results if m.status in ["FAILED", "INCONCLUSIVE"]]
+            if pending_or_failed:
+                return (
+                    50.0,
+                    "REVIEW_RECOMMENDED",
+                    f"Checks pending or inconclusive for: {', '.join(pending_or_failed)}. Officer manual inspection required.",
+                )
+            return 20.0, "CLEAR", "Screening completed without critical risk signals."

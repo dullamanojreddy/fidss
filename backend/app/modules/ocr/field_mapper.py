@@ -121,13 +121,15 @@ def _find_labeled_value(
     if not labels:
         return ""
 
-    label_pattern = "|".join(
-        re.escape(label)
-        for label in labels
-    )
+    label_patterns = []
+    for label in labels:
+        escaped = re.escape(label)
+        # Allow O and 0 interchangeably to withstand common OCR character confusion
+        tolerant = re.sub(r"[Oo0]", "[Oo0]", escaped)
+        label_patterns.append(tolerant)
 
     pattern = re.compile(
-        rf"(?:{label_pattern})\s*[:\-]?\s*(.+)",
+        rf"(?:{'|'.join(label_patterns)})\s*[:\-]?\s*(.+)",
         re.IGNORECASE,
     )
 
@@ -170,11 +172,6 @@ def map_fields(
     # ---------------------------------------------------------
     # Document number
     # ---------------------------------------------------------
-
-        # ---------------------------------------------------------
-    # Document number
-    # ---------------------------------------------------------
-
     config = configured_fields.get("document_number", {})
 
     value = _find_labeled_value(
@@ -194,15 +191,15 @@ def map_fields(
         match = DOCUMENT_NUMBER_PATTERN.search(value.upper())
 
         if match:
-            fields["document_number"] = normalize_document_number(
-                match.group(0)
-            )
+            doc_num = normalize_document_number(match.group(0))
+            fields["document_number"] = doc_num
+            fields["Passport Number"] = doc_num
+            fields["Document Number"] = doc_num
 
     # ---------------------------------------------------------
     # Date of birth
     # ---------------------------------------------------------
-
-        config = configured_fields.get("date_of_birth", {})
+    config = configured_fields.get("date_of_birth", {})
 
     value = _find_labeled_value(
         ocr_lines,
@@ -221,15 +218,15 @@ def map_fields(
         match = DATE_PATTERN.search(value)
 
         if match:
-            fields["date_of_birth"] = normalize_date(
-                match.group(0)
-            )
+            dob = normalize_date(match.group(0))
+            fields["date_of_birth"] = dob
+            fields["Date of Birth"] = dob
+            fields["DOB"] = dob
 
     # ---------------------------------------------------------
     # Date of expiry
     # ---------------------------------------------------------
-
-        config = configured_fields.get("date_of_expiry", {})
+    config = configured_fields.get("date_of_expiry", {})
 
     value = _find_labeled_value(
         ocr_lines,
@@ -248,15 +245,15 @@ def map_fields(
         match = DATE_PATTERN.search(value)
 
         if match:
-            fields["date_of_expiry"] = normalize_date(
-                match.group(0)
-            )
+            doe = normalize_date(match.group(0))
+            fields["date_of_expiry"] = doe
+            fields["Date of Expiry"] = doe
+            fields["Expiry Date"] = doe
 
     # ---------------------------------------------------------
     # Nationality
     # ---------------------------------------------------------
-
-        config = configured_fields.get("nationality", {})
+    config = configured_fields.get("nationality", {})
 
     value = _find_labeled_value(
         ocr_lines,
@@ -273,13 +270,14 @@ def map_fields(
 
     if value:
         country = value.split()[0]
-        fields["nationality"] = normalize_country(country)
+        nat = normalize_country(country)
+        fields["nationality"] = nat
+        fields["Nationality"] = nat
 
     # ---------------------------------------------------------
     # Surname
     # ---------------------------------------------------------
-
-        config = configured_fields.get("surname", {})
+    config = configured_fields.get("surname", {})
 
     value = _find_labeled_value(
         ocr_lines,
@@ -295,13 +293,14 @@ def map_fields(
         )
 
     if value:
-        fields["surname"] = normalize_name(value)
+        sur = normalize_name(value)
+        fields["surname"] = sur
+        fields["Surname"] = sur
 
     # ---------------------------------------------------------
     # Given names
     # ---------------------------------------------------------
-
-        config = configured_fields.get("given_names", {})
+    config = configured_fields.get("given_names", {})
 
     value = _find_labeled_value(
         ocr_lines,
@@ -317,14 +316,16 @@ def map_fields(
         )
 
     if value:
-        fields["given_names"] = normalize_name(value)
+        giv = normalize_name(value)
+        fields["given_names"] = giv
+        fields["Given Name"] = giv
+        fields["Given Names"] = giv
 
     # ---------------------------------------------------------
     # Combined name
     # ---------------------------------------------------------
-
     if "surname" in fields or "given_names" in fields:
-        fields["name"] = " ".join(
+        full_name = " ".join(
             part
             for part in (
                 fields.get("surname", ""),
@@ -332,5 +333,7 @@ def map_fields(
             )
             if part
         )
+        fields["name"] = full_name
+        fields["Full Name"] = full_name
 
     return fields

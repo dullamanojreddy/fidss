@@ -92,8 +92,22 @@ class ScreeningOrchestrator:
             context.ocr_result = ocr_mod_res.metadata
 
             # ------------------------------------------------------------------
-            # Step 08: Document / MRZ Validation
+            # Step 08: Document / MRZ Validation & Duplicate Identity Check
             # ------------------------------------------------------------------
+            historical_records = []
+            try:
+                past_fields = db.query(DocumentField).all()
+                screenings_map: dict[str, dict[str, str]] = {}
+                for pf in past_fields:
+                    if pf.screening_id != screening_id:
+                        screenings_map.setdefault(pf.screening_id, {})[pf.field_name] = pf.field_value
+                for s_id, fields in screenings_map.items():
+                    historical_records.append({"screening_id": s_id, **fields})
+            except Exception:
+                historical_records = []
+
+            context.allowed_outputs["historical_records"] = historical_records
+
             val_mod_res = ModuleDispatcher.run_validation(context)
             module_results.append(val_mod_res)
             context.validation_result = val_mod_res.metadata

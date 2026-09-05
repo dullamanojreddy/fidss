@@ -13,9 +13,11 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Header } from '../components/Header';
+import { useParams } from 'react-router-dom';
 import { auditApi } from '../api/client';
 
 export const AuditTrailPage = () => {
+  const { id } = useParams();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
@@ -24,7 +26,7 @@ export const AuditTrailPage = () => {
 
   useEffect(() => {
     loadAuditLogs();
-  }, []);
+  }, [id]);
 
   const loadAuditLogs = async () => {
     setLoading(true);
@@ -38,10 +40,20 @@ export const AuditTrailPage = () => {
     }
   };
 
+  const getTargetScreeningId = () => {
+    if (id) return id;
+    if (logs && logs.length > 0) {
+      const logWithScreening = logs.find(l => l.screening_id);
+      if (logWithScreening) return logWithScreening.screening_id;
+    }
+    return 'SID-2026-05-21-00124';
+  };
+
   const handleVerify = async () => {
     setVerifying(true);
     try {
-      const res = await auditApi.verifyChain('SID-2026-05-21-00124');
+      const targetId = getTargetScreeningId();
+      const res = await auditApi.verifyChain(targetId);
       setVerificationResult(res);
     } catch (err) {
       console.error('Verification error:', err);
@@ -53,10 +65,11 @@ export const AuditTrailPage = () => {
   const handleSimulateTampering = async () => {
     setTampering(true);
     try {
-      await auditApi.tamperDemo('SID-2026-05-21-00124');
+      const targetId = getTargetScreeningId();
+      await auditApi.tamperDemo(targetId);
       await loadAuditLogs();
       // Re-verify immediately to show detection
-      const res = await auditApi.verifyChain('SID-2026-05-21-00124');
+      const res = await auditApi.verifyChain(targetId);
       setVerificationResult(res);
     } catch (err) {
       console.error('Tamper demo error:', err);

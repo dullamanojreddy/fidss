@@ -51,10 +51,12 @@ def test_module_dispatcher_quality_contract():
 
 
 def test_module_dispatcher_ocr_contract():
+    from pathlib import Path
+    img_path = Path(__file__).resolve().parent.parent.parent / "test_document.jpg"
     ctx = DocumentContext(
         screening_id=uuid.uuid4(),
         document_id=uuid.uuid4(),
-        image_path="/storage/test.png",
+        image_path=str(img_path) if img_path.exists() else "test_document.jpg",
         image_sha256="test-hash",
     )
     res, extracted = ModuleDispatcher.run_ocr(ctx)

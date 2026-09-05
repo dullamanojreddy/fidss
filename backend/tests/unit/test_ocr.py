@@ -38,10 +38,12 @@ def test_field_mapper():
 
 
 def test_ocr_analyze():
+    from pathlib import Path
+    img_path = Path(__file__).resolve().parent.parent.parent / "test_document.jpg"
     context = DocumentContext(
         screening_id=uuid.uuid4(),
         document_id=uuid.uuid4(),
-        image_path="test_document.jpg",
+        image_path=str(img_path) if img_path.exists() else "test_document.jpg",
         document_type="passport",
         image_sha256="test",
     )
@@ -52,6 +54,8 @@ def test_ocr_analyze():
     assert len(result.evidence_items) > 0
     assert result.metadata["raw_lines"]
     assert "extracted_fields" in result.metadata
+    assert result.metadata["extracted_fields"].get("document_number") == "A1234567"
+    assert result.metadata["extracted_fields"].get("Passport Number") == "A1234567"
 
 def test_spatial_field_mapping():
     lines = [

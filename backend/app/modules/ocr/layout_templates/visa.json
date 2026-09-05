@@ -1,0 +1,86 @@
+{
+  "document_type": "visa",
+  "coordinate_system": "normalized",
+  "fields": {
+    "document_number": {
+      "labels": [
+        "VISA NO",
+        "VISA NUMBER",
+        "FOIL NO",
+        "CONTROL NUMBER",
+        "DOCUMENT NO"
+      ],
+      "zone": {
+        "x": 0.55,
+        "y": 0.05,
+        "width": 0.45,
+        "height": 0.30
+      }
+    },
+    "surname": {
+      "labels": [
+        "SURNAME",
+        "FAMILY NAME",
+        "NAME"
+      ],
+      "zone": {
+        "x": 0.25,
+        "y": 0.20,
+        "width": 0.70,
+        "height": 0.20
+      }
+    },
+    "given_names": {
+      "labels": [
+        "GIVEN NAMES",
+        "GIVEN NAME",
+        "FIRST NAME"
+      ],
+      "zone": {
+        "x": 0.25,
+        "y": 0.32,
+        "width": 0.70,
+        "height": 0.20
+      }
+    },
+    "nationality": {
+      "labels": [
+        "NATIONALITY",
+        "CITIZENSHIP"
+      ],
+      "zone": {
+        "x": 0.25,
+        "y": 0.45,
+        "width": 0.40,
+        "height": 0.20
+      }
+    },
+    "date_of_birth": {
+      "labels": [
+        "DATE OF BIRTH",
+        "DOB",
+        "BIRTH DATE"
+      ],
+      "zone": {
+        "x": 0.60,
+        "y": 0.45,
+        "width": 0.40,
+        "height": 0.20
+      }
+    },
+    "date_of_expiry": {
+      "labels": [
+        "EXPIRY DATE",
+        "VALID UNTIL",
+        "EXPIRATION DATE",
+        "DOE"
+      ],
+      "zone": {
+        "x": 0.50,
+        "y": 0.60,
+        "width": 0.50,
+        "height": 0.20
+      }
+    }
+  }
+}

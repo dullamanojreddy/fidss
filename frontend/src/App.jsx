@@ -23,9 +23,12 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Navigate to="/screening-console" replace />} />
             <Route path="/screening-console" element={<ScreeningConsolePage />} />
+            <Route path="/screening-console/:id" element={<ScreeningConsolePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/officer-review" element={<OfficerReviewPage />} />
+            <Route path="/officer-review/:id" element={<OfficerReviewPage />} />
             <Route path="/audit-trail" element={<AuditTrailPage />} />
+            <Route path="/audit-trail/:id" element={<AuditTrailPage />} />
             <Route path="/watchlist" element={<WatchlistPage />} />
             <Route path="/duplicate-identity" element={<DuplicateIdentityPage />} />
             <Route path="/documents" element={<DocumentsPage />} />

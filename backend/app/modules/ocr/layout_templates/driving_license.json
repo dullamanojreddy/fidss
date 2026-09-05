@@ -1,0 +1,60 @@
+{
+  "document_type": "driving_license",
+  "coordinate_system": "normalized",
+  "fields": {
+    "document_number": {
+      "labels": [
+        "DL NO",
+        "LICENSE NO",
+        "LICENCE NO",
+        "DRIVING LICENCE NUMBER",
+        "DL NUMBER"
+      ],
+      "zone": {
+        "x": 0.25,
+        "y": 0.10,
+        "width": 0.75,
+        "height": 0.25
+      }
+    },
+    "name": {
+      "labels": [
+        "NAME",
+        "HOLDER NAME",
+        "DRIVER NAME"
+      ],
+      "zone": {
+        "x": 0.25,
+        "y": 0.30,
+        "width": 0.75,
+        "height": 0.20
+      }
+    },
+    "date_of_birth": {
+      "labels": [
+        "DOB",
+        "DATE OF BIRTH"
+      ],
+      "zone": {
+        "x": 0.25,
+        "y": 0.45,
+        "width": 0.45,
+        "height": 0.20
+      }
+    },
+    "date_of_expiry": {
+      "labels": [
+        "VALID UPTO",
+        "EXPIRY DATE",
+        "VALID TILL",
+        "VALIDITY"
+      ],
+      "zone": {
+        "x": 0.50,
+        "y": 0.60,
+        "width": 0.50,
+        "height": 0.25
+      }
+    }
+  }
+}

@@ -50,6 +50,10 @@ export const screeningApi = {
     const res = await api.get(`/screenings/${id}/review`);
     return res.data;
   },
+  getEscalated: async () => {
+    const res = await api.get('/screenings/escalated/list');
+    return res.data;
+  },
 };
 
 export const auditApi = {

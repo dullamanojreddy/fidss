@@ -50,6 +50,13 @@ def submit_officer_review(
         )
         db.add(review_obj)
 
+    if review_in.decision == "ESCALATE":
+        screening.status = "ESCALATED_TO_SECONDARY"
+    elif review_in.decision == "ACCEPT":
+        screening.status = "CLEARED"
+    elif review_in.decision == "REJECT":
+        screening.status = "REJECTED"
+
     db.commit()
     db.refresh(review_obj)
 

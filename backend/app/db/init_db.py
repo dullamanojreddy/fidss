@@ -37,6 +37,19 @@ def init_db(db: Session | None = None) -> None:
             )
             db.add(officer)
 
+        # Seed Senior Officer (Secondary Inspection Supervisor)
+        senior = db.query(User).filter(User.username == "senior_verma").first()
+        if not senior:
+            senior = User(
+                id=str(uuid.uuid4()),
+                username="senior_verma",
+                hashed_password=get_password_hash("SeniorVerma2026!"),
+                full_name="Superintendent Rajesh Verma",
+                role="SENIOR_OFFICER",
+                is_active=True,
+            )
+            db.add(senior)
+
         # Seed default Admin if not in DB (credentials from environment)
         admin = db.query(User).filter(User.username == settings.SEED_ADMIN_USERNAME).first()
         if not admin:

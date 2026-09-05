@@ -43,6 +43,60 @@ def list_screenings(
     return ScreeningService.list_screenings(db, limit=limit, offset=offset)
 
 
+@router.get("/escalated/list")
+def list_escalated_screenings(
+    db: Session = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user),
+):
+    """Retrieve all screenings escalated to Senior Officer."""
+    from app.models.screening import Screening
+    from app.models.officer_review import OfficerReview
+    from app.models.document_field import DocumentField
+    from app.models.user import User
+
+    reviews = (
+        db.query(OfficerReview)
+        .filter(OfficerReview.decision == "ESCALATE")
+        .order_by(OfficerReview.created_at.desc())
+        .all()
+    )
+    results = []
+    for rev in reviews:
+        screening = db.query(Screening).filter(Screening.id == rev.screening_id).first()
+        if not screening:
+            continue
+        officer = db.query(User).filter(User.id == rev.officer_id).first()
+        fields_records = db.query(DocumentField).filter(DocumentField.screening_id == screening.id).all()
+        extracted_fields = {f.field_name: f.field_value for f in fields_records}
+
+        doc_name = (
+            extracted_fields.get("name")
+            or extracted_fields.get("Full Name")
+            or f"{extracted_fields.get('Given Name', '')} {extracted_fields.get('Surname', '')}".strip()
+        )
+        doc_num = extracted_fields.get("document_number") or extracted_fields.get("Passport Number") or "N/A"
+
+        results.append({
+            "screening_id": screening.id,
+            "screening_number": screening.screening_number,
+            "document_type": screening.document_type,
+            "nationality": screening.nationality,
+            "overall_risk_score": screening.overall_risk_score,
+            "screening_level": screening.screening_level,
+            "recommendation_text": screening.recommendation_text,
+            "document_preview_url": f"/api/documents/{screening.id}/file",
+            "traveler_name": doc_name or "Unknown Traveler",
+            "document_number": doc_num,
+            "extracted_fields": extracted_fields,
+            "escalated_by": officer.full_name if officer else "Inspector Arjun",
+            "escalation_reason": rev.reason,
+            "escalation_notes": rev.notes,
+            "escalated_at": rev.created_at.isoformat(),
+            "status": screening.status,
+        })
+    return results
+
+
 @router.get("/{screening_id}", response_model=ScreeningResultResponse)
 def get_screening(
     screening_id: str,

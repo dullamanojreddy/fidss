@@ -19,10 +19,11 @@ def analyze(context: DocumentContext) -> tuple[list[EvidenceItem], str, dict]:
     pairs = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False).knnMatch(descriptors, descriptors, k=3)
     good = []
     for candidates in pairs:
-        if len(candidates) < 3:
+        non_self = [match for match in candidates if match.queryIdx != match.trainIdx]
+        if len(non_self) < 2:
             continue
-        first, second, _ = candidates
-        if first.queryIdx != first.trainIdx and first.distance < 0.72 * second.distance:
+        first, second = non_self[:2]
+        if first.distance < 0.72 * second.distance:
             p1, p2 = keypoints[first.queryIdx].pt, keypoints[first.trainIdx].pt
             if np.hypot(p1[0] - p2[0], p1[1] - p2[1]) > 24:
                 good.append(first)

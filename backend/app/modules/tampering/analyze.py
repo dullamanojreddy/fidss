@@ -36,16 +36,21 @@ def analyze(context: DocumentContext) -> ModuleResult:
     for name, detector in _DETECTORS:
         try:
             items, status, metadata = detector(context)
+            if status not in {"SUCCESS", "INCONCLUSIVE", "FAILED"}:
+                raise ValueError(f"invalid detector status: {status!r}")
             evidence.extend(items)
             statuses.append(status)
             detector_metadata[name] = metadata
+            if status == "FAILED":
+                errors.append(f"{name}: detector reported failure")
         except Exception as exc:
             errors.append(f"{name}: {exc}")
             statuses.append("FAILED")
             detector_metadata[name] = {"error": str(exc)}
-    if len(errors) == len(_DETECTORS):
+    failed_count = sum(status == "FAILED" for status in statuses)
+    if failed_count == len(_DETECTORS):
         overall = "FAILED"
-    elif errors:
+    elif failed_count:
         overall = "PARTIAL"
     elif all(status == "INCONCLUSIVE" for status in statuses):
         overall = "INCONCLUSIVE"
